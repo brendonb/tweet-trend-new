@@ -25,7 +25,7 @@ pipeline {
     steps{
     withSonarQubeEnv('sonarqube-server') {
         sh "${scannerHome}/bin/sonar-scanner"
-        sh "sonar-scanner -X -Dsonar.projectKey=my_projwittertrend -Dsonar.sources=src"
+        sh "sonar-scanner -X -Dsonar.projectKey=bee-key_twittertrend -Dsonar.sources=src"
               }
         }
           
