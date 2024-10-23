@@ -15,19 +15,19 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/brendonb/tweet-trend-new.git'
             }
         }
-    }
+    
 
     stage('SonarQube analysis') {
 
     environment{
         scannerHome = tool 'sonar-scanner'
         }
-        steps{
-            withSonarQubeEnv('sonarqube-server') {
-                 sh "${scannerHome}/bin/sonar-scanner"
+    steps{
+    withSonarQubeEnv('sonarqube-server') {
+        sh "${scannerHome}/bin/sonar-scanner"
               }
         }
-        
           
       }
+    }
 }
