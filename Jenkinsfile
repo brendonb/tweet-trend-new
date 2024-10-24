@@ -1,3 +1,4 @@
+def registry ="https://t3chguy6stonegauntlet.jfrog.io/"
 pipeline {
     agent {
         node {
@@ -15,20 +16,32 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/brendonb/tweet-trend-new.git'
             }
         }
-    
-
-    stage('SonarQube analysis') {
-
-    environment{
-        scannerHome = tool 'sonar-scanner'
-        }
-    steps{
-    withSonarQubeEnv('sonarqube-server') {
-        sh "${scannerHome}/bin/sonar-scanner"
-        sh "sonar-scanner -X -Dsonar.projectKey=bee-key_twittertrend -Dsonar.sources=src"
-              }
-        }
-          
-      }
     }
+
+    stage("Jar Publish") {
+        steps {
+            script {
+                    echo '<--------------- Jar Publish Started --------------->'
+                     def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"jfrog-cred"
+                     def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
+                     def uploadSpec = """{
+                          "files": [
+                            {
+                              "pattern": "jarstaging/(*)",
+                              "target": "libs-release-local/{1}",
+                              "flat": "false",
+                              "props" : "${properties}",
+                              "exclusions": [ "*.sha1", "*.md5"]
+                            }
+                         ]
+                     }"""
+                     def buildInfo = server.upload(uploadSpec)
+                     buildInfo.env.collect()
+                     server.publishBuildInfo(buildInfo)
+                     echo '<--------------- Jar Publish Ended --------------->'  
+            
+            }
+        }   
+    }   
 }
+
